@@ -1,4 +1,5 @@
 import bcryptjs from "bcryptjs";
+import { v4 as uuidV4 } from "uuid";
 import { connection } from "../database/db.js";
 
 export async function signup(req, res) {
@@ -27,6 +28,58 @@ export async function signup(req, res) {
 }
 
 export async function signin(req, res) {
+	const token = uuidV4();
+	const userInfo = res.locals.userInfo;
+	console.log(token);
 
-	res.sendStatus(200)
+	const userResponse = { ...userInfo, token };
+	delete userResponse.userId;
+
+	try {
+		// Gets user session information
+		const userSession = await connection.query(
+			`
+			SELECT
+				*
+			FROM
+				sessions
+			WHERE
+				user_id = $1
+		`,
+			[userInfo.userId]
+		);
+
+		// Check if older user session exists
+		// Deletes older sessions
+		if (userSession.rows.length !== 0) {
+			await connection.query(
+				`
+				DELETE FROM
+					sessions
+				WHERE
+					user_id = $1
+			`,
+				[userInfo.userId]
+			);
+		}
+
+		// Inserts new session into DB
+		const sessionArr = [userInfo.userId, token];
+
+		await connection.query(
+			`
+			INSERT INTO
+				sessions (user_id, token)
+			VALUES
+				($1, $2)
+		`,
+			sessionArr
+		);
+	} catch (err) {
+		console.log(err);
+		return res.sendStatus(500);
+	}
+
+	console.log(userResponse);
+	res.status(200).send(userResponse);
 }

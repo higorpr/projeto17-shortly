@@ -6,8 +6,6 @@ CREATE TABLE users (
 	user_url_visit_count INTEGER NOT NULL
 );
 
-
-
 CREATE TABLE urls (
 	id SERIAL NOT NULL PRIMARY KEY,
 	user_id INTEGER NOT NULL REFERENCES "users"("id"),
@@ -16,4 +14,8 @@ CREATE TABLE urls (
 	url_visit_count INTEGER NOT NULL
 );
 
-
+CREATE TABLE sessions (
+	id SERIAL NOT NULL PRIMARY KEY,
+	user_id INTEGER NOT NULL UNIQUE REFERENCES "users"("id"),
+	token TEXT NOT NULL
+);
