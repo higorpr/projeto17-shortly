@@ -21,7 +21,7 @@ export async function CheckUrlId(req, res, next) {
 			return res.sendStatus(404);
 		}
 
-		res.locals.responseBody = urlResponse.rows[0];
+		res.locals.urlInfo = urlResponse.rows[0];
 	} catch (err) {
 		console.log(err);
 		res.sendStatus(500);

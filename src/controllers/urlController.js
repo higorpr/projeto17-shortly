@@ -45,6 +45,27 @@ export async function shortenUrl(req, res) {
 }
 
 export async function getUrlById(req, res) {
-	const response = res.locals.responseBody;
+	const response = res.locals.urlInfo;
 	res.status(200).send(response);
+}
+
+export async function deleteUrl(req, res) {
+	const { id } = res.locals.urlInfo;
+
+	try {
+		await connection.query(
+			`
+			DELETE FROM
+				urls
+			WHERE
+				id = $1
+		`,
+			[id]
+		);
+
+	} catch (err) {
+		console.log(err);
+		return res.sendStatus(500);
+	}
+	res.sendStatus(204);
 }
