@@ -43,3 +43,8 @@ export async function shortenUrl(req, res) {
 
 	res.status(201).send({ shortUrl: shortUrl });
 }
+
+export async function getUrlById(req, res) {
+	const response = res.locals.responseBody;
+	res.status(200).send(response);
+}
