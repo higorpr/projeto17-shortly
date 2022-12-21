@@ -3,19 +3,31 @@ CREATE TABLE users (
 	name TEXT NOT NULL,
 	password TEXT NOT NULL,
 	email TEXT NOT NULL UNIQUE,
-	user_url_visit_count INTEGER NOT NULL
+	created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE urls (
 	id SERIAL NOT NULL PRIMARY KEY,
-	user_id INTEGER NOT NULL REFERENCES "users"("id"),
+	user_id INTEGER NOT NULL,
 	url TEXT NOT NULL,
 	short_url TEXT NOT NULL,
-	url_visit_count INTEGER NOT NULL
+	url_visit_count INTEGER NOT NULL,
+	created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE sessions (
 	id SERIAL NOT NULL PRIMARY KEY,
-	user_id INTEGER NOT NULL UNIQUE REFERENCES "users"("id"),
-	token TEXT NOT NULL
+	user_id INTEGER NOT NULL UNIQUE,
+	token TEXT NOT NULL,
+	created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW()
 );
+
+ALTER TABLE
+	"urls"
+ADD
+	CONSTRAINT "urls_fk0" FOREIGN KEY ("user_id") REFERENCES "users"("id");
+
+ALTER TABLE
+	"sessions"
+ADD
+	CONSTRAINT "sessions_fk0" FOREIGN KEY ("user_id") REFERENCES "users"("id");

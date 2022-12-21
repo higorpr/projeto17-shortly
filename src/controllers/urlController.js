@@ -62,10 +62,15 @@ export async function deleteUrl(req, res) {
 		`,
 			[id]
 		);
-
 	} catch (err) {
 		console.log(err);
 		return res.sendStatus(500);
 	}
 	res.sendStatus(204);
+}
+
+export async function openUrl(req, res) {
+	const url = res.locals.url
+
+	res.redirect(302, url)
 }

@@ -10,13 +10,13 @@ export async function signup(req, res) {
 
 	try {
 		const visitCount = 0;
-		const userArr = [name, email, hashPassword, visitCount];
+		const userArr = [name, email, hashPassword];
 		connection.query(
 			`
 			INSERT INTO
-				users (name, email, password, user_url_visit_count)
+				users (name, email, password)
 			VALUES
-				($1, $2, $3, $4)
+				($1, $2, $3)
 		`,
 			userArr
 		);
@@ -30,7 +30,6 @@ export async function signup(req, res) {
 export async function signin(req, res) {
 	const token = uuidV4();
 	const userInfo = res.locals.userInfo;
-	console.log(token);
 
 	const userResponse = { ...userInfo, token };
 	delete userResponse.userId;
@@ -80,6 +79,5 @@ export async function signin(req, res) {
 		return res.sendStatus(500);
 	}
 
-	console.log(userResponse);
 	res.status(200).send(userResponse);
 }
