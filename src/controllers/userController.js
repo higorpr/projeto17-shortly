@@ -22,7 +22,34 @@ export async function getUserInfo(req, res) {
 		);
 
 		const userUrlsInfo = response.rows[0];
-		res.status(200).send(userUrlsInfo);
+
+		return res.status(200).send(userUrlsInfo);
+	} catch (err) {
+		console.log(err);
+		return res.sendStatus(500);
+	}
+}
+
+export async function ranking(req, res) {
+	try {
+		const response = await connection.query(`
+            SELECT
+                u.id AS "id", 
+                u.name AS "name", 
+                COUNT(ur.id) AS "linksCount", 
+                COALESCE(SUM(ur.url_visit_count),0) AS "visitCount"
+            FROM
+                users u LEFT JOIN urls ur 
+            ON 
+                u.id = ur.user_id
+            GROUP BY
+                u.id
+            ORDER BY
+                "linksCount" DESC
+            LIMIT 10;
+        `);
+		const ranking = response.rows;
+		return res.status(200).send(ranking);
 	} catch (err) {
 		console.log(err);
 		return res.sendStatus(500);
