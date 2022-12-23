@@ -3,7 +3,7 @@ import { connection } from "../database/db.js";
 export async function CheckUrlId(req, res, next) {
 	const { id } = req.params;
 
-	// Check if id exists
+	// Check if url id exists
 	try {
 		const urlResponse = await connection.query(
 			`
@@ -22,6 +22,7 @@ export async function CheckUrlId(req, res, next) {
 		}
 
 		res.locals.urlInfo = urlResponse.rows[0];
+		
 	} catch (err) {
 		console.log(err);
 		res.sendStatus(500);
