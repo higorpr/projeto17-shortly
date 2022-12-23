@@ -11,7 +11,7 @@ CREATE TABLE urls (
 	user_id INTEGER NOT NULL,
 	url TEXT NOT NULL,
 	short_url TEXT NOT NULL,
-	url_visit_count INTEGER NOT NULL,
+	url_visit_count INTEGER NOT NULL DEFAULT 0,
 	created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW()
 );
 
