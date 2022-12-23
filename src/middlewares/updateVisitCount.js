@@ -1,20 +1,10 @@
-import { connection } from "../database/db.js";
+import { urlRepository } from "../repositories/urlRepository.js";
 
 export async function updateVisitCount(req, res, next) {
 	const urlId = res.locals.urlId;
 
 	try {
-		await connection.query(
-			`
-            UPDATE
-                urls
-            SET
-                url_visit_count = url_visit_count + 1
-            WHERE
-                id = $1
-        `,
-			[urlId]
-		);
+		await urlRepository.updateViewCount(urlId);
 	} catch (err) {
 		console.log(err);
 		res.sendStatus(500);

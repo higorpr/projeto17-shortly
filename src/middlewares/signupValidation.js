@@ -1,5 +1,5 @@
-import { connection } from "../database/db.js";
 import { signupSchema } from "../models/signupSchema.js";
+import { authRepository } from "../repositories/authRepository.js";
 
 export async function signupValidation(req, res, next) {
 	const signupInfo = req.body;
@@ -14,12 +14,7 @@ export async function signupValidation(req, res, next) {
 	}
 
 	try {
-		const response = await connection.query(`
-			SELECT
-				email
-			FROM
-				users
-		`);
+		const response = await authRepository.getUserEmails();
 
 		const user_emails = response.rows.map((r) => r.email);
 

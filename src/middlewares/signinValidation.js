@@ -1,10 +1,9 @@
 import bcryptjs from "bcryptjs";
-import { connection } from "../database/db.js";
 import { signinSchema } from "../models/signinSchema.js";
+import { authRepository } from "../repositories/authRepository.js";
 
 export async function signinValidation(req, res, next) {
 	const signinInfo = req.body;
-	let userInfo = {};
 
 	const validationErrors = signinSchema.validate(signinInfo, {
 		abortEarly: false,
@@ -16,16 +15,8 @@ export async function signinValidation(req, res, next) {
 	}
 
 	try {
-		const userResponse = await connection.query(
-			`
-            SELECT
-                *
-            FROM
-                users
-            WHERE
-                email = $1
-        `,
-			[signinInfo.email]
+		const userResponse = await authRepository.getUserByEmail(
+			signinInfo.email
 		);
 
 		// Email not in DB (Nonexistant)
@@ -33,7 +24,9 @@ export async function signinValidation(req, res, next) {
 			return res.sendStatus(401);
 		}
 
-		const storedPassword = userResponse.rows[0].password;
+		const user = userResponse.rows[0];
+
+		const storedPassword = user.password;
 		const passwordCheck = bcryptjs.compareSync(
 			signinInfo.password,
 			storedPassword
@@ -43,16 +36,17 @@ export async function signinValidation(req, res, next) {
 			return res.status(401).send("Email ou senha incorretos");
 		}
 
-		userInfo = {
-			userId : userResponse.rows[0].id,
-			name: userResponse.rows[0].name,
-			email: userResponse.rows[0].email,
-		};
+		console.log("Before delete: ", user);
+
+		delete user.password;
+
+		console.log("After delete: ", user);
+
+		res.locals.userInfo = user;
 	} catch (err) {
 		console.log(err);
 		return res.sendStatus(500);
 	}
-	
-	res.locals.userInfo = userInfo;
+
 	next();
 }

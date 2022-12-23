@@ -1,25 +1,14 @@
 import { nanoid } from "nanoid";
-import { connection } from "../database/db.js";
+import { urlRepository } from "../repositories/urlRepository.js";
 
 export async function shortenUrl(req, res) {
 	const url = res.locals.url;
 	const userId = res.locals.userId;
 	const shortUrl = nanoid(10);
 	const urlVisitCount = 0;
-	const urlArr = [userId, url, shortUrl, urlVisitCount];
 
 	try {
-		const userUrlResponse = await connection.query(
-			`
-            SELECT
-                url
-            FROM
-                urls
-            WHERE
-                user_id = $1
-        `,
-			[userId]
-		);
+		const userUrlResponse = await urlRepository.getUrls(userId);
 
 		const userUrls = userUrlResponse.rows.map((u) => u.url);
 
@@ -27,15 +16,7 @@ export async function shortenUrl(req, res) {
 			return res.status(409).send("Url already stored");
 		}
 
-		await connection.query(
-			`
-        INSERT INTO
-            urls (user_id, url, short_url, url_visit_count)
-        VALUES
-            ($1, $2, $3, $4);
-        `,
-			urlArr
-		);
+		await urlRepository.addUrl(userId, url, shortUrl, urlVisitCount);
 	} catch (err) {
 		console.log(err);
 		return res.sendStatus(500);
@@ -53,15 +34,7 @@ export async function deleteUrl(req, res) {
 	const { id } = res.locals.urlInfo;
 
 	try {
-		await connection.query(
-			`
-			DELETE FROM
-				urls
-			WHERE
-				id = $1
-		`,
-			[id]
-		);
+		await urlRepository.deleteUrl(id);
 	} catch (err) {
 		console.log(err);
 		return res.sendStatus(500);
@@ -70,7 +43,7 @@ export async function deleteUrl(req, res) {
 }
 
 export async function openUrl(req, res) {
-	const url = res.locals.url
+	const url = res.locals.url;
 
-	res.redirect(302, url)
+	res.redirect(302, url);
 }
